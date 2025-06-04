@@ -20,12 +20,11 @@ def get_authenticated_service():
         flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
             CLIENT_SECRETS_FILE, SCOPES
         )
-        credentials = flow.run_console()  # <- wichtig!
+        credentials = flow.run_console()  # <- das hier GENAU so
         with open("token.pickle", "wb") as token:
             pickle.dump(credentials, token)
-    return googleapiclient.discovery.build(
-        API_SERVICE_NAME, API_VERSION, credentials=credentials
-    )
+    return googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+
 
 
 def upload_video(file_path, title, description, tags=None, category_id="22", privacy_status="private", publish_time=None):
