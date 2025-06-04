@@ -17,11 +17,16 @@ def get_authenticated_service():
         with open("token.pickle", "rb") as token:
             credentials = pickle.load(token)
     if not credentials or not credentials.valid:
-        flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-        credentials = flow.run_local_server(port=8765)
+        flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
+            CLIENT_SECRETS_FILE, SCOPES
+        )
+        credentials = flow.run_console()  # <- wichtig!
         with open("token.pickle", "wb") as token:
             pickle.dump(credentials, token)
-    return googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+    return googleapiclient.discovery.build(
+        API_SERVICE_NAME, API_VERSION, credentials=credentials
+    )
+
 
 def upload_video(file_path, title, description, tags=None, category_id="22", privacy_status="private", publish_time=None):
     if tags is None:
