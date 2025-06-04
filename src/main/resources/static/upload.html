@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Video Generator</title>
+</head>
+<body>
+  <h2>Video erstellen aus Bild + Audio-ZIP</h2>
+
+  <form id="uploadForm">
+    <label>Bild (jpg/png):</label><br>
+    <input type="file" name="image" accept="image/*" required><br><br>
+
+    <label>Audio-ZIP (.zip):</label><br>
+    <input type="file" name="audioZip" accept=".zip" required><br><br>
+
+    <label>Overlay:</label><br>
+    <select name="overlay" required>
+      <option value="1">❄️ Schnee</option>
+      <option value="2">🌧️ Regen</option>
+      <option value="3">💿 Vinyl</option>
+    </select><br><br>
+
+    <label>Titel:</label><br>
+    <input type="text" name="title" required><br><br>
+
+    <label>Veröffentlichung (optional):</label><br>
+    <input type="datetime-local" name="schedule"><br><br>
+
+    <button type="submit">🎬 Video generieren</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = "⏳ Wird verarbeitet...";
+
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch("http://localhost:8080/api/generate", {
+          method: "POST",
+          body: formData
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "video.mp4";
+          a.click();
+          status.textContent = "✅ Video erfolgreich heruntergeladen.";
+        } else {
+          const text = await response.text();
+          status.textContent = "❌ Fehler: " + text;
+        }
+      } catch (err) {
+        status.textContent = "❌ Netzwerkfehler: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
