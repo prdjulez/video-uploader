@@ -22,8 +22,14 @@ def get_authenticated_service():
             CLIENT_SECRETS_FILE, SCOPES
         )
 
-        # Lokaler OAuth mit Webbrowser und Redirect
-        credentials = flow.run_local_server(port=8765)
+        # ✔ Manuell: Link anzeigen, Code eingeben
+        auth_url, _ = flow.authorization_url(prompt='consent')
+        print("\n🔗 Bitte diesen Link im Browser öffnen:")
+        print(auth_url)
+
+        code = input("\n✏️ Code hier eingeben: ")
+        flow.fetch_token(code=code)
+        credentials = flow.credentials
 
         with open("token.pickle", "wb") as token:
             pickle.dump(credentials, token)
