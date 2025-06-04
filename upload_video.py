@@ -22,18 +22,14 @@ def get_authenticated_service():
             CLIENT_SECRETS_FILE, SCOPES
         )
 
-        # Manuelle OAuth-Autorisierung (funktioniert überall)
-        auth_url, _ = flow.authorization_url(prompt='consent')
-        print("\n🔗 Bitte diesen Link im Browser öffnen, um Zugriff zu gewähren:")
-        print(auth_url)
-        code = input("\n✏️ Code eingeben: ")
-        flow.fetch_token(code=code)
-        credentials = flow.credentials
+        # Lokaler OAuth mit Webbrowser und Redirect
+        credentials = flow.run_local_server(port=8765)
 
         with open("token.pickle", "wb") as token:
             pickle.dump(credentials, token)
 
     return googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+
 
 
 def upload_video(file_path, title, description, tags=None, category_id="22", privacy_status="private", publish_time=None):
@@ -65,9 +61,8 @@ def upload_video(file_path, title, description, tags=None, category_id="22", pri
     while response is None:
         status, response = request.next_chunk()
         if status:
-            print(f"📤 Upload-Fortschritt: {int(status.progress() * 100)}%")
+            print(f"Upload-Fortschritt: {int(status.progress() * 100)}%")
     print("✅ Upload abgeschlossen! Video-ID:", response['id'])
-
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
