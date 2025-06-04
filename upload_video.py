@@ -21,20 +21,13 @@ def get_authenticated_service():
         flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
             CLIENT_SECRETS_FILE, SCOPES
         )
-
-        # ✔ Manuell: Link anzeigen, Code eingeben
-        auth_url, _ = flow.authorization_url(prompt='consent')
-        print("\n🔗 Bitte diesen Link im Browser öffnen:")
-        print(auth_url)
-
-        code = input("\n✏️ Code hier eingeben: ")
-        flow.fetch_token(code=code)
-        credentials = flow.credentials
+        credentials = flow.run_local_server(port=8765)
 
         with open("token.pickle", "wb") as token:
             pickle.dump(credentials, token)
 
     return googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+
 
 
 
