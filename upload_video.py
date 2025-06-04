@@ -22,13 +22,13 @@ def get_authenticated_service():
             CLIENT_SECRETS_FILE, SCOPES
         )
 
-        if hasattr(flow, "run_local_server"):
-            try:
-                credentials = flow.run_local_server(port=8765)
-            except Exception:
-                credentials = flow.run_console()
-        else:
-            credentials = flow.run_console()
+        # Manuelle OAuth-Autorisierung (funktioniert überall)
+        auth_url, _ = flow.authorization_url(prompt='consent')
+        print("\n🔗 Bitte diesen Link im Browser öffnen, um Zugriff zu gewähren:")
+        print(auth_url)
+        code = input("\n✏️ Code eingeben: ")
+        flow.fetch_token(code=code)
+        credentials = flow.credentials
 
         with open("token.pickle", "wb") as token:
             pickle.dump(credentials, token)
@@ -65,8 +65,9 @@ def upload_video(file_path, title, description, tags=None, category_id="22", pri
     while response is None:
         status, response = request.next_chunk()
         if status:
-            print(f"Upload-Fortschritt: {int(status.progress() * 100)}%")
+            print(f"📤 Upload-Fortschritt: {int(status.progress() * 100)}%")
     print("✅ Upload abgeschlossen! Video-ID:", response['id'])
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
